@@ -15,6 +15,9 @@ function Viewport(o) {
     this.xo = 0; //old x
     this.yo = 0; //old y
 
+    this.vonly = false; //vertical only - saves calculation time
+    this.honly = false; //horizontal only - saves calculation time
+
     this.viewport = window;
     this.default_viewport = true;
     this.pane = {};
@@ -64,27 +67,31 @@ function Viewport(o) {
             this.x = this.viewport.scrollLeft();
         }
 
-        this.xd = this.x - this.xo;
-        this.yd = this.y - this.yo;
-        this.bottom = this.y + this.height;
-        this.right = this.x + this.width;
+        if (!this.honly) {
+            this.yd = this.y - this.yo;
+            this.bottom = this.y + this.height;
+            this.pane.height = this.pane.elem.height();
 
-        this.pane.width = this.pane.elem.width();
-        this.pane.height = this.pane.elem.height();
-
-        var suby = this.pane.height - this.height;
-        if (suby <= 0) {
-            this.yp = 0;
-        } else {
-            this.yp = this.y * 100 / suby;
+            var suby = this.pane.height - this.height;
+            if (suby <= 0) {
+                this.yp = 0;
+            } else {
+                this.yp = this.y * 100 / suby;
+            }
         }
 
-        var subx = this.pane.width - this.width;
+        if (!this.vonly) {
+            this.xd = this.x - this.xo;
+            this.right = this.x + this.width;
+            this.pane.width = this.pane.elem.width();
 
-        if (subx <= 0) {
-            this.xp = 0;
-        } else {
-            this.xp = this.x * 100 / subx;
+            var subx = this.pane.width - this.width;
+
+            if (subx <= 0) {
+                this.xp = 0;
+            } else {
+                this.xp = this.x * 100 / subx;
+            }
         }
     };
 
@@ -117,7 +124,7 @@ function Viewport(o) {
     __init__();
 }
 
-function ActiveElement(elem, viewport, callback) {
+function ActiveElement(elem, viewport, o) {
     this.width = null;
     this.height = null;
     this.x = null;
@@ -127,28 +134,74 @@ function ActiveElement(elem, viewport, callback) {
     this.bottom = null;
     this.right = null;
     this.viewport = viewport;
-    this.callback = callback;
+    this.callback = null;
+    this.once = false;
+
+    this.vonly = false; //vertical only - saves calculation time
+    this.honly = false; //horizontal only - saves calculation time
+
+    //extend with options, nonrecursive extend
+    for (var k in o) {
+        if (this.hasOwnProperty(k)) {
+            this[k] = o[k];
+        }
+    }
 
     this.update = function() {
+        if (!this.callback) {
+            return;
+        }
+
         this.width = this.element.outerWidth();
         this.height = this.element.outerHeight();
-        var off = this.element.offset();
+        var off = {};
+        if (this.viewport.default_viewport) {
+            off = this.element.offset();
+        } else {
+            off = this.element.position();
+        }
         this.y = off.top;
         this.x = off.left;
-        this.bottom = this.y + this.height;
 
-        if (this.viewport.bottom < this.y) {
-            this.yp = 0;
-        } else if (this.viewport.bottom >= this.bottom) {
-            this.yp = 1;
-        } else {
-            this.yp = (this.viewport.bottom-this.y) / this.height;
+        var lockx = false;
+        var locky = false;
+
+        if (!this.honly) {
+            this.bottom = this.y + this.height;
+
+            if (this.viewport.bottom < this.y) {
+                this.yp = 0;
+                locky = true;
+            } else if (this.viewport.bottom >= this.bottom) {
+                this.yp = 1;
+                locky = true;
+            } else {
+                locky = false;
+                this.yp = (this.viewport.bottom-this.y) / this.height;
+            }
         }
 
-        if (this.callback) {
+        if (!this.vonly) {
+            this.right = this.y + this.right;
+
+            if (this.viewport.bottom < this.x) {
+                this.xp = 0;
+                lockx = true;
+            } else if (this.viewport.right >= this.right) {
+                this.xp = 1;
+                lockx = true;
+            } else {
+                lockx = false;
+                this.xp = (this.viewport.right-this.x) / this.width;
+            }
+        }
+        if (!lockx && !locky) {
             this.callback(this);
-        }
 
+            if (this.omce) {
+                this.callback = null;
+            }
+        }
     }
 
     var self = this;
@@ -183,15 +236,16 @@ function ActiveElements() {
 }
 
 $(document).ready(function() {
-    //var vp = new Viewport({viewport: $('#viewport'), pane:{elem:$('#pane')}});
-    var vp = new Viewport();
+    var vp = new Viewport({vonly: true, viewport: $('#viewport'), pane:{elem:$('#pane')}});
+    //var vp = new Viewport();
     var $percentage = $('.percentage');
 
     vp.link('percentage', function(vp){
         $percentage.css('width', vp.yp + '%');
     });
-    new ActiveElement('.s1.farsight', vp, function(ae){
-        ae.element.css('opacity', ae.yp)
-        ae.element.css('transform', 'translate('+(100-ae.yp*100)+'px, 0px)');
-    });
+    new ActiveElement('.s1.farsight', vp, {once: false, vonly: true, callback: function(ae){
+        ae.element.css('opacity', ae.yp);
+        //console.log(ae.yp)
+        //ae.element.css('transform', 'translate('+(100-ae.yp*100)+'px, 0px)');
+    }});
 });
