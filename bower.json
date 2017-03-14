@@ -1,0 +1,15 @@
+{
+  "name": "liquorwise",
+  "homepage": "https://github.com/stamat/farsight",
+  "authors": [
+    "Nikola Stamatovic <nikola.stamatovic@stamat.info>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+        "jquery": "~1.12.0"
+    },
+    "overrides": {
+
+    }
+}
