@@ -41,10 +41,6 @@ body {
     left: 40px;
 }
 
-.farsight {
-    opacity: 0;
-}
-
 .percentage {
     position: fixed;
     top: 0px;

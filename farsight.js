@@ -140,10 +140,22 @@ function ActiveElement(elem, viewport, o) {
     this.vonly = false; //vertical only - saves calculation time
     this.honly = false; //horizontal only - saves calculation time
 
+    this.animation = null;
+    this.duration = null;
+    this.delay = null;
+    this.infinite = false;
+
     //extend with options, nonrecursive extend
     for (var k in o) {
         if (this.hasOwnProperty(k)) {
             this[k] = o[k];
+
+            if (k === 'animation') {
+                this.once = true;
+                this.callback = function() {
+                        this.element.addClass('animated '+ this.animation).css('opacity', 1);
+                };
+            }
         }
     }
 
@@ -206,6 +218,18 @@ function ActiveElement(elem, viewport, o) {
 
     var self = this;
     var __init__ = function() {
+        if (this.duration) {
+            this.element.css('-vendor-animation-duration', this.duration);
+        }
+
+        if (this.delay) {
+            this.element.css('-vendor-animation-delay', this.delay);
+        }
+
+        if (this.infinite) {
+            this.element.css('-vendor-animation-iteration-count', 'infinite');
+        }
+
         self.update();
         self.viewport.link(elem, function() {
             self.update();
@@ -243,9 +267,5 @@ $(document).ready(function() {
     vp.link('percentage', function(vp){
         $percentage.css('width', vp.yp + '%');
     });
-    new ActiveElement('.s1.farsight', vp, {once: false, vonly: true, callback: function(ae){
-        ae.element.css('opacity', ae.yp);
-        //console.log(ae.yp)
-        //ae.element.css('transform', 'translate('+(100-ae.yp*100)+'px, 0px)');
-    }});
+    new ActiveElement('.s1.farsight', vp, {once: false, vonly: true, animation: 'bounceInDown'});
 });
