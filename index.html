@@ -4,17 +4,131 @@
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500" rel="stylesheet">
         <link rel='stylesheet' href='bower_components/animate.css/animate.css' type='text/css' media='all' />
-        <link rel='stylesheet' href='farsight.css' type='text/css' media='all' />
+        <link rel='stylesheet' href='demo.css' type='text/css' media='all' />
         <script src="bower_components/jquery/dist/jquery.min.js"></script>
         <script src="farsight.js"></script>
+        <script src="demo.js"></script>
     </head>
     <body>
         <div class="percentage"></div>
-        <div id="viewport">
-            <div id="pane">
-                <section class="s1 farsight"></section>
+        <div id="pane">
+            <h1 class="title">farsight</h1>
+            <h3 class="subtitle">JavaScript viewport framework</h3>
+            <p>Much like WOWJS this script will enable you to activate Animate.css or custom css animations while you scroll. But unlike WOWJS you are able to create parallax effects, reading through paragraphs percentage information and many more by utilizing two powerful classes that expand the expected functionality.</p>
+
+            <div class="grid clearfix">
+                <section>
+                    <div class="wrap fs c1" fs-animation="bounce" fs-infinite>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    BOUNCE
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c2" fs-animation="flash" fs-infinite>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    FLASH
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c3" fs-animation="pulse" fs-infinite>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    PULSE
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c4" fs-animation="rubberBand" fs-infinite>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    RUBBER BAND
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c5" fs-animation="shake" fs-infinite>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    SHAKE
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c6" fs-animation="swing" fs-infinite>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    SWING
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c7" fs-animation="tada" fs-infinite>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    tada
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c8" fs-animation="wobble" fs-infinite>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    wobble
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c9" fs-animation="jello" fs-infinite>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    jello
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
+            <section class="s1 fs" fs-delay="3s" fs-animation="bounce" fs-infinite></section>
         </div>
     </body>
 </html>

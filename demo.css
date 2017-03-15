@@ -1,0 +1,133 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    color: #111;
+    box-sizing: border-box;
+    font-weight: 300;
+}
+
+h1.title {
+    font-size: 36px;
+    text-transform: uppercase;
+    font-weight: 500;
+    text-align: center;
+}
+
+h3.subtitle {
+    text-align: center;
+}
+
+.table {
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+
+.cell {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.clearfix::after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+.grid section {
+    float: left;
+    color: white;
+    width: 33.333%;
+}
+
+.grid section .wrap {
+    margin: 30px;
+    position: relative;
+    text-transform: uppercase;
+}
+
+.grid section .wrap img {
+    visibility: hidden;
+    width: 100%;
+}
+
+.grid section .wrap .overlay {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.c1 {
+    background: #6bbce9;
+}
+
+.c2 {
+    background: #7b8bc7;
+}
+
+.c3 {
+    background: #9977b4;
+}
+
+.c4 {
+    background: #dd86b9;
+}
+
+.c5 {
+    background: #f497a9;
+}
+
+.c6 {
+    background: #f8a792;
+}
+
+.c7 {
+    background: #fabc89;
+}
+
+.c8 {
+    background: #feee7f;
+}
+
+.c9 {
+    background: #d5e28a;
+}
+
+.c10 {
+    background: #b7d686;
+}
+
+#pane {
+    max-width: 960px;
+    padding: 0px 20px;
+    margin: 0 auto;
+    height: 3000px;
+    position: relative;
+}
+
+#pane section.s1 {
+    background: red;
+    top: 1000px;
+    left: 40px;
+}
+
+#pane section.s2 {
+    background: blue;
+    top: 350px;
+    left: 40px;
+}
+
+.percentage {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 5px;
+    background: #6bbce9;
+    width: 0%;
+    z-index: 1;
+}
