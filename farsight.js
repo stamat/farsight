@@ -8,6 +8,7 @@
 
 //TODO: terminate farsight function, unbind all the events
 //TODO: different farsight functions for scroll related animations, like opacity
+//TODO: integrate floatit into this framework https://jsfiddle.net/stamat/tmjn44p9/
 //TODO: Case when active element is above the viewport and not visible prevent some calculations to improve performance
 //TODO: Think about cases where both vertical and horizontal scrolling is enabled
 
@@ -151,6 +152,7 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
     this.height = null;
     this.x = null;
     this.y = null;
+    this.xp = 0; //percentage visible
     this.yp = 0; //percentage visible
     this.element = $(elem);
     this.bottom = null;
@@ -159,10 +161,16 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
     this.callback = null;
     this.once = false;
 
+    this.oldy = 0; //start position y
+    this.oldx = 0; //start position x
+
     this.animation = null;
     this.duration = null;
     this.delay = null;
     this.infinite = false;
+
+    this.target = null; //can be used in scroll callbacks, represents a target DOM element cache
+    this.data = null;
 
     //extend with options, nonrecursive extend
     for (var k in o) {
@@ -194,19 +202,15 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
         this.y = off.top;
         this.x = off.left;
 
-        var lockx = false;
-        var locky = false;
-
         if (!this.viewport.honly) {
             this.bottom = this.y + this.height;
             if (this.viewport.bottom < this.y) {
                 this.yp = 0;
-                locky = true;
+            } else if (this.viewport.y > this.bottom) {
+                this.yp = -1;
             } else if (this.viewport.bottom >= this.bottom) {
                 this.yp = 1;
-                locky = false;
             } else {
-                locky = false;
                 this.yp = (this.viewport.bottom-this.y) / this.height;
             }
         }
@@ -216,17 +220,16 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
 
             if (this.viewport.right < this.x) {
                 this.xp = 0;
-                lockx = true;
+            } else if (this.viewport.x > this.right) {
+                this.xp = -1;
             } else if (this.viewport.right >= this.right) {
                 this.xp = 1;
-                lockx = false;
             } else {
-                lockx = false;
                 this.xp = (this.viewport.right-this.x) / this.width;
             }
         }
-        
-        if (!lockx && !locky) {
+
+        if (this.xp > 0 && this.xp <= 1 && this.yp > 0 && this.yp <= 1) {
             this.callback(this);
 
             if (this.once) {
@@ -238,15 +241,15 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
     var self = this;
     var __init__ = function() {
         if (this.duration) {
-            this.element.css('-vendor-animation-duration', this.duration);
+            this.element.css('animation-duration', this.duration);
         }
 
         if (this.delay) {
-            this.element.css('-vendor-animation-delay', this.delay);
+            this.element.css('animation-delay', this.delay);
         }
 
         if (this.infinite) {
-            this.element.css('-vendor-animation-iteration-count', 'infinite');
+            this.element.css('animation-iteration-count', 'infinite');
         }
 
         self.update();
@@ -257,6 +260,70 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
     }
     __init__();
 }
+
+//utils from stamat/ivartech
+farsight.utils = {};
+farsight.utils.getPropertyByNamespace = function(str, root, del) {
+    if(!del) del = '.';
+	var parts = str.split(del);
+	var current = !root ? window : root;
+	for (var i = 0; i < parts.length; i++) {
+		if (current.hasOwnProperty(parts[i])) {
+			current = current[parts[i]];
+		} else {
+			return;
+		}
+	}
+	return current;
+};
+
+
+farsight.parallax = function(ae) {
+    ae.element.css('transform', 'translate3d(0px, '+(ae.viewport.y/6)+'px, 0px)');
+};
+
+farsight.percentage = function(ae) {
+
+    var o = ae.yp;
+    if (o < 0) {
+        o = 0
+    }
+    var p = o*100;
+    ae.target.css('width', p+'%');
+};
+
+farsight.opacity = function(ae) {
+    var o = ae.yp;
+    if (o < 0) {
+        o = 0
+    }
+    ae.element.css('opacity', o);
+};
+
+farsight.opacity_and_move_up = function(ae) {
+    var o = ae.yp;
+    if (o < 0) {
+        o = 0
+    }
+    var m = ae.data;
+    ae.element.css({'opacity':  o, 'transform': 'translate3d(0px, '+(m-m*o)+'px, 0px)'});
+};
+
+farsight.rotate = function(ae) {
+    var o = ae.yp;
+    if (o < 0) {
+        o = 0
+    }
+    var m = ae.data;
+    ae.element.css({'transform': 'rotate('+(m-m*o)+'deg)'});
+};
+
+//follow element consists of a container and content following the viewport which is the fs-target elem
+farsight.follow = function(ae) {
+    //if (ae.viewport.y > ae.oldy) {
+
+    //}
+};
 
 function Farsight(o) {
     this.elements = [];
@@ -291,6 +358,22 @@ function Farsight(o) {
         'fs-infinite': {
             'field': 'infinite',
             'value': 'boolean'
+        },
+        'fs-target': {
+            'field': 'target',
+            'value': 'element'
+        },
+        'fs-data-number': {
+            'field': 'data',
+            'value': 'number'
+        },
+        'fs-data-string': {
+            'field': 'data',
+            'value': 'string'
+        },
+        'fs-data': {
+            'field': 'data',
+            'value': 'json'
         }
     };
 
@@ -319,7 +402,13 @@ function Farsight(o) {
                     if (a.value === 'boolean') {
                         o[a.field] = attr === '' || attr === 'true';
                     } else if (a.value === 'function') {
-                        o[a.field] = window[attr];
+                        o[a.field] = farsight.utils.getPropertyByNamespace(attr);
+                    } else if (a.value === 'number') {
+                        o[a.field] = parseFloat(attr);
+                    } else if (a.value === 'json') {
+                        o[a.field] = JSON.parse(attr);
+                    } else if (a.value === 'element') {
+                            o[a.field] = $(attr);
                     } else {
                         o[a.field] = attr;
                     }

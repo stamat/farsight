@@ -13,12 +13,29 @@
     </head>
     <body>
         <div class="percentage"></div>
+        <div class="hero">
+            <div class="image fs" fs-function="farsight.parallax"></div>
+            <div class="overlay">
+                <div class="table">
+                    <div class="cell">
+                        <div class="content fs" fs-function="farsight.parallax">
+                            <h1 class="title">farsight</h1>
+                            <h3 class="subtitle">JavaScript viewport framework</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- https://instagram.fbeg3-1.fna.fbcdn.net/t51.2885-15/e35/16908548_1756552501340479_6467289813614592000_n.jpg
+    -->
+        <div class="menu fs" fs-function="farsight.follow">
+            <a href="#attention-seekers"><span class="text">Attention Seekers</span><span class="pc attention-seekers-percentage"></span></a>
+        </div>
         <div id="pane">
-            <h1 class="title">farsight</h1>
-            <h3 class="subtitle">JavaScript viewport framework</h3>
             <p>Much like WOWJS this script will enable you to activate Animate.css or custom css animations while you scroll. But unlike WOWJS you are able to create parallax effects, reading through paragraphs percentage information and many more by utilizing two powerful classes that expand the expected functionality.</p>
 
-            <div class="grid clearfix">
+            <div id="attention-seekers" class="grid g3 clearfix fs" fs-function="farsight.percentage" fs-target=".attention-seekers-percentage">
+                <h2>Attention Seekers</h2>
                 <section>
                     <div class="wrap fs c1" fs-animation="bounce" fs-infinite>
                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
@@ -128,7 +145,69 @@
                     </div>
                 </section>
             </div>
-            <section class="s1 fs" fs-delay="3s" fs-animation="bounce" fs-infinite></section>
+            <div id="farsight-special" class="grid g4 clearfix fs" fs-function="farsight.percentage" fs-target=".attention-seekers-percentage">
+                <h2>Farsight Special</h2>
+                <section>
+                    <div class="wrap fs c1" fs-function="farsight.opacity" style="opacity: 0">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    OPACITY
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c2" fs-function="farsight.opacity_and_move_up" fs-data-number="20" style="opacity: 0; trnasform: translate3d(0px, 100px, 0px);">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    OPACITY AND MOVE
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c3" fs-function="farsight.opacity_and_move_up" fs-data-number="40" style="opacity: 0; trnasform: translate3d(0px, 100px, 0px);">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    OPACITY AND MOVE
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c4" fs-function="farsight.opacity_and_move_up" fs-data-number="60" style="opacity: 0; trnasform: translate3d(0px, 100px, 0px);">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    OPACITY AND MOVE
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c5" fs-function="farsight.rotate" fs-data-number="60" style="trnasform: rotate(60deg);">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    ROTATE
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
     </body>
 </html>
