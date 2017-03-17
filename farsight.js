@@ -265,7 +265,7 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
 farsight.utils = {};
 farsight.utils.getPropertyByNamespace = function(str, root, del) {
     if(!del) del = '.';
-	var parts = str.split(del);
+	var parts = typeof str === 'string' ? str.split(del) : str;
 	var current = !root ? window : root;
 	for (var i = 0; i < parts.length; i++) {
 		if (current.hasOwnProperty(parts[i])) {
@@ -283,7 +283,6 @@ farsight.parallax = function(ae) {
 };
 
 farsight.percentage = function(ae) {
-
     var o = ae.yp;
     if (o < 0) {
         o = 0
@@ -300,7 +299,7 @@ farsight.opacity = function(ae) {
     ae.element.css('opacity', o);
 };
 
-farsight.opacity_and_move_up = function(ae) {
+farsight.fade_in_up = function(ae) {
     var o = ae.yp;
     if (o < 0) {
         o = 0
@@ -318,11 +317,40 @@ farsight.rotate = function(ae) {
     ae.element.css({'transform': 'rotate('+(m-m*o)+'deg)'});
 };
 
+farsight.scale = function(ae) {
+    var o = ae.yp;
+    if (o < 0) {
+        o = 0
+    }
+    var m = ae.data;
+    ae.element.css({'transform': 'scale('+(o)+')'});
+};
+
 //follow element consists of a container and content following the viewport which is the fs-target elem
 farsight.follow = function(ae) {
     //if (ae.viewport.y > ae.oldy) {
 
     //}
+};
+
+farsight.pre = {};
+
+farsight.pre.opacity = function(ae) {
+    ae.element.css('opacity', 0);
+};
+
+farsight.pre.rotate = function(ae) {
+    ae.element.css({'transform': 'rotate('+ae.data+'deg)'});
+};
+
+farsight.pre.fade_in_up = function(ae) {
+    ae.element.css({'opacity':  0, 'transform': 'translate3d(0px, '+ae.data+'px, 0px)'});
+};
+
+farsight.pre.scale = function(ae) {
+    var o = !ae.data ? 0 : ae.data;
+
+    ae.element.css({'transform': 'scale('+o+')'});
 };
 
 function Farsight(o) {
@@ -387,6 +415,7 @@ function Farsight(o) {
     var self = this;
     var __init__ = function() {
         self.viewport_instance = new farsight.Viewport({vonly: self.vonly, honly: self.honly, viewport: self.viewport, pane: {elem: self.pane}});
+        var has_custom = null; //if the element has an attribute "fn-function" used for prepare functions
 
         var $elems = $(self.selector);
         for (var i = 0; i < $elems.length; i++) {
@@ -412,10 +441,24 @@ function Farsight(o) {
                     } else {
                         o[a.field] = attr;
                     }
+
+                    if (k === 'fs-function') {
+                        has_custom = attr;
+                    }
                 }
             }
 
-            self.elements.push(new farsight.ActiveElement($elem, self.viewport_instance, o));
+            var ae = new farsight.ActiveElement($elem, self.viewport_instance, o);
+            self.elements.push(ae);
+
+            if (has_custom) {
+                var pts = has_custom.split('.');
+                pts.splice(1, 0, 'pre');
+                var pre_fn = farsight.utils.getPropertyByNamespace(pts);
+                if (pre_fn) {
+                    pre_fn(ae);
+                }
+            }
         }
     }
     __init__();

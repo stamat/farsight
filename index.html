@@ -5,9 +5,9 @@
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://fonts.googleapis.com/css?family=Montserrat:300,500" rel="stylesheet">
-        <link rel='stylesheet' href='bower_components/animate.css/animate.css' type='text/css' media='all' />
+        <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css' type='text/css' media='all' />
         <link rel='stylesheet' href='demo.css' type='text/css' media='all' />
-        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <script src="farsight.js"></script>
         <script src="demo.js"></script>
     </head>
@@ -148,7 +148,7 @@
             <div id="farsight-special" class="grid g4 clearfix fs" fs-function="farsight.percentage" fs-target=".attention-seekers-percentage">
                 <h2>Farsight Special</h2>
                 <section>
-                    <div class="wrap fs c1" fs-function="farsight.opacity" style="opacity: 0">
+                    <div class="wrap fs c1" fs-function="farsight.opacity">
                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
                         <div class="overlay">
                             <div class="table">
@@ -160,7 +160,7 @@
                     </div>
                 </section>
                 <section>
-                    <div class="wrap fs c2" fs-function="farsight.opacity_and_move_up" fs-data-number="20" style="opacity: 0; trnasform: translate3d(0px, 100px, 0px);">
+                    <div class="wrap fs c2" fs-function="farsight.fade_in_up" fs-data-number="20">
                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
                         <div class="overlay">
                             <div class="table">
@@ -172,7 +172,7 @@
                     </div>
                 </section>
                 <section>
-                    <div class="wrap fs c3" fs-function="farsight.opacity_and_move_up" fs-data-number="40" style="opacity: 0; trnasform: translate3d(0px, 100px, 0px);">
+                    <div class="wrap fs c3" fs-function="farsight.fade_in_up" fs-data-number="40">
                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
                         <div class="overlay">
                             <div class="table">
@@ -184,7 +184,7 @@
                     </div>
                 </section>
                 <section>
-                    <div class="wrap fs c4" fs-function="farsight.opacity_and_move_up" fs-data-number="60" style="opacity: 0; trnasform: translate3d(0px, 100px, 0px);">
+                    <div class="wrap fs c4" fs-function="farsight.fade_in_up" fs-data-number="60">
                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
                         <div class="overlay">
                             <div class="table">
@@ -196,12 +196,24 @@
                     </div>
                 </section>
                 <section>
-                    <div class="wrap fs c5" fs-function="farsight.rotate" fs-data-number="60" style="trnasform: rotate(60deg);">
+                    <div class="wrap fs c5" fs-function="farsight.rotate" fs-data-number="60">
                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
                         <div class="overlay">
                             <div class="table">
                                 <div class="cell">
                                     ROTATE
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="wrap fs c6" fs-function="farsight.scale" fs-data-number="1">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
+                        <div class="overlay">
+                            <div class="table">
+                                <div class="cell">
+                                    SCALE
                                 </div>
                             </div>
                         </div>
