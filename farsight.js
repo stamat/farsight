@@ -7,12 +7,12 @@
 */
 
 //TODO: terminate farsight function, unbind all the events
-//TODO: different farsight functions for scroll related animations, like opacity
+//TODO: change the custom function system to merge CSS transform into one - make a separate custom CSS function
 //TODO: integrate floatit into this framework https://jsfiddle.net/stamat/tmjn44p9/
-//TODO: Case when active element is above the viewport and not visible prevent some calculations to improve performance
+//TODO: Percentage of dissapearance when passing through the left or top border of the viewport if enabled
 //TODO: Think about cases where both vertical and horizontal scrolling is enabled
 
-var farsight = {};
+var farsight = farsight || {};
 
 farsight.Viewport = function Viewport(o) {
     var self = this;
@@ -42,18 +42,6 @@ farsight.Viewport = function Viewport(o) {
     this.pane.height = 0;
 
     var autoincrement = 0; //autoincrement for callback naming
-
-    //extend with options, nonrecursive extend
-    for (var k in o) {
-        if (this.hasOwnProperty(k)) {
-            this[k] = o[k];
-
-            if (k === 'viewport' && !o[k].hasOwnProperty('innerWidth')) {
-                this.default_viewport = false;
-            }
-        }
-    }
-
 
     this.bind = function(name, callback) {
         if (!name) {
@@ -126,6 +114,11 @@ farsight.Viewport = function Viewport(o) {
     };
 
     var __init__ = function() {
+        farsight._utils.extend(self, o, false, false);
+        //if the viewport is not window
+        if (!self.viewport.hasOwnProperty('innerWidth')) {
+            this.default_viewport = false;
+        }
 
         window.onresize = function() {
             self.calculate();
@@ -159,6 +152,7 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
     this.right = null;
     this.viewport = viewport;
     this.callback = null;
+    this.multiple_callbacks = false;
     this.once = false;
 
     this.oldy = 0; //start position y
@@ -170,21 +164,26 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
     this.infinite = false;
 
     this.target = null; //can be used in scroll callbacks, represents a target DOM element cache
-    this.data = null;
+    this.data = {};
 
-    //extend with options, nonrecursive extend
-    for (var k in o) {
-        if (this.hasOwnProperty(k)) {
-            this[k] = o[k];
+    var autoincrement = 0;
 
-            if (k === 'animation') {
-                this.once = true;
-                this.callback = function() {
-                    this.element.addClass('animated '+ this.animation);
-                };
-            }
+    this.bind = function(name, callback) {
+        if (!this.multiple_callbacks && this.callback !== null) {
+            this.callback = {'0': this.callback};
         }
-    }
+        if (!name) {
+            name = 'fn' + autoincrement;
+        }
+        this.multiple_callbacks =  true;
+        this.callback = this.callback || {};
+        this.callback[name] = callback;
+        autoincrement++;
+    };
+
+    this.unbind = function(name, callback) {
+        delete this.callback[name];
+    };
 
     this.update = function() {
         if (!this.callback) {
@@ -230,7 +229,13 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
         }
 
         if (this.xp > 0 && this.xp <= 1 && this.yp > 0 && this.yp <= 1) {
-            this.callback(this);
+            if (this.multiple_callbacks) {
+                for (var k in this.callback) {
+                    this.callback[k](this);
+                }
+            } else {
+                this.callback(this);
+            }
 
             if (this.once) {
                 this.callback = null;
@@ -240,6 +245,20 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
 
     var self = this;
     var __init__ = function() {
+        farsight._utils.extend(self, o, false, false);
+
+        if (o.hasOwnProperty('callback')) {
+            self.multiple_callbacks = typeof self.callback !== 'function';
+        }
+
+        if (o.hasOwnProperty('animation')) {
+            self.once = true;
+            self.callback = function() {
+                self.element.addClass('animated '+ self.animation);
+            };
+            self.multiple_callbacks = false;
+        }
+
         if (this.duration) {
             this.element.css('animation-duration', this.duration);
         }
@@ -262,11 +281,11 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
 }
 
 //utils from stamat/ivartech
-farsight.utils = {};
-farsight.utils.getPropertyByNamespace = function(str, root, del) {
-    if(!del) del = '.';
+farsight._utils = {};
+farsight._utils.getPropertyByNamespace = function(str, root, del) {
+    del = del || '.';
 	var parts = typeof str === 'string' ? str.split(del) : str;
-	var current = !root ? window : root;
+	var current = root || window;
 	for (var i = 0; i < parts.length; i++) {
 		if (current.hasOwnProperty(parts[i])) {
 			current = current[parts[i]];
@@ -277,80 +296,93 @@ farsight.utils.getPropertyByNamespace = function(str, root, del) {
 	return current;
 };
 
-
-farsight.parallax = function(ae) {
-    ae.element.css('transform', 'translate3d(0px, '+(ae.viewport.y/6)+'px, 0px)');
+farsight._utils.namespace = function(str, root, del) {
+    del = del || '.';
+	var parts = typeof str === 'string' ? str.split(del) : str;
+	var current = root || window;
+	for(var i = 0; i < parts.length; i++) {
+		if (!current.hasOwnProperty(parts[i])) {
+			current[parts[i]] = {};
+        }
+		current = current[parts[i]];
+	};
+	return current;
 };
 
-farsight.percentage = function(ae) {
-    var o = ae.yp;
-    if (o < 0) {
-        o = 0
+//deep extend
+//if_not_exists can be undefined, true, false, if it's false it will only extend the object if it has the property of the extender, if it's true it extends only if the property doesn't exist or it's null
+farsight._utils.extend = function(o1, o2, deep, if_not_exists) {
+	for (var i in o2) {
+        var state = true;
+        if (if_not_exists !== undefined ) {
+            if (if_not_exists === false) {
+                state = o1.hasOwnProperty(i);
+            } else {
+                state = !(o1[i] !== undefined && o1[i] !== null && if_not_exists);
+            }
+        }
+
+        if (deep && typeof o1[i] === 'object' && typeof o2[i] === 'object') {
+            farsight._utils.extend(o1[i], o2[i], if_not_exists);
+        }
+
+		if (state) {
+			o1[i] = o2[i];
+		}
+	}
+	return o1;
+};
+
+// attrs should be an object with names and desired format
+farsight._utils.parseAttrs = function(elem, attrs) {
+    var res = {};
+    var $elem = $(elem);
+
+    var parsers = {};
+    parsers['boolean'] = function(v) {
+        return v === '' || v === 'true';
+    };
+
+    parsers['string'] = function(v) {
+        return v;
+    };
+
+    parsers['function'] = function(v) {
+        var fns = v.split(/,\s?/g);
+        if (fns.length === 1) {
+            return farsight._utils.getPropertyByNamespace(fns[0]);
+        }
+        var r = {};
+        for (var i = 0; i < fns.length; i++) {
+            r[fns[i]] = farsight._utils.getPropertyByNamespace(fns[i]);
+        }
+
+        return r;
+    };
+
+    parsers['number'] = function(v) {
+        return parseFloat(v);
+    };
+
+    parsers['selector'] = function(v) {
+        return $(v);
+    };
+
+    parsers['json'] = function(v) {
+        return JSON.parse(v);
+    };
+
+    for (var k in attrs) {
+        var attr = $elem.attr(k);
+
+        if (attr || attr === '') {
+            var nk = k.replace(/^fs\-/ig, '');
+            nk = nk.replace(/\-/g, '_');
+            res[nk] = parsers[attrs[k]](attr);
+        }
     }
-    var p = o*100;
-    ae.target.css('width', p+'%');
-};
 
-farsight.opacity = function(ae) {
-    var o = ae.yp;
-    if (o < 0) {
-        o = 0
-    }
-    ae.element.css('opacity', o);
-};
-
-farsight.fade_in_up = function(ae) {
-    var o = ae.yp;
-    if (o < 0) {
-        o = 0
-    }
-    var m = ae.data;
-    ae.element.css({'opacity':  o, 'transform': 'translate3d(0px, '+(m-m*o)+'px, 0px)'});
-};
-
-farsight.rotate = function(ae) {
-    var o = ae.yp;
-    if (o < 0) {
-        o = 0
-    }
-    var m = ae.data;
-    ae.element.css({'transform': 'rotate('+(m-m*o)+'deg)'});
-};
-
-farsight.scale = function(ae) {
-    var o = ae.yp;
-    if (o < 0) {
-        o = 0
-    }
-    var m = ae.data;
-    ae.element.css({'transform': 'scale('+(o)+')'});
-};
-
-//follow element consists of a container and content following the viewport which is the fs-target elem
-farsight.follow = function(ae) {
-    //if (ae.viewport.y > ae.oldy) {
-
-    //}
-};
-
-farsight.pre = {};
-
-farsight.pre.opacity = function(ae) {
-    ae.element.css('opacity', 0);
-};
-
-farsight.pre.rotate = function(ae) {
-    ae.element.css({'transform': 'rotate('+ae.data+'deg)'});
-};
-
-farsight.pre.fade_in_up = function(ae) {
-    ae.element.css({'opacity':  0, 'transform': 'translate3d(0px, '+ae.data+'px, 0px)'});
-};
-
-farsight.pre.scale = function(ae) {
-    var o = !ae.data ? 0 : ae.data;
-
-    ae.element.css({'transform': 'scale('+o+')'});
+    return res;
 };
 
 function Farsight(o) {
@@ -367,42 +399,12 @@ function Farsight(o) {
     };
 
     var attrs = {
-        'fs-animation': {
-            'field': 'animation',
-            'value': 'string'
-        },
-        'fs-function': {
-            'field': 'callback',
-            'value': 'function'
-        },
-        'fs-duration': {
-            'field': 'duration',
-            'value': 'string'
-        },
-        'fs-delay': {
-            'field': 'delay',
-            'value': 'string'
-        },
-        'fs-infinite': {
-            'field': 'infinite',
-            'value': 'boolean'
-        },
-        'fs-target': {
-            'field': 'target',
-            'value': 'element'
-        },
-        'fs-data-number': {
-            'field': 'data',
-            'value': 'number'
-        },
-        'fs-data-string': {
-            'field': 'data',
-            'value': 'string'
-        },
-        'fs-data': {
-            'field': 'data',
-            'value': 'json'
-        }
+        'fs-animation': 'string',
+        'fs-callback': 'function',
+        'fs-duration': 'string',
+        'fs-delay': 'string',
+        'fs-infinite': 'boolean',
+        'fs-target': 'selector'
     };
 
     //extend with options, nonrecursive extend
@@ -420,43 +422,27 @@ function Farsight(o) {
         var $elems = $(self.selector);
         for (var i = 0; i < $elems.length; i++) {
             var $elem = $($elems[i]);
-            var o = {};
-
-            for (var k in attrs) {
-                var attr = $elem.attr(k);
-
-                if (attr || attr === '') {
-                    var a = attrs[k];
-
-                    if (a.value === 'boolean') {
-                        o[a.field] = attr === '' || attr === 'true';
-                    } else if (a.value === 'function') {
-                        o[a.field] = farsight.utils.getPropertyByNamespace(attr);
-                    } else if (a.value === 'number') {
-                        o[a.field] = parseFloat(attr);
-                    } else if (a.value === 'json') {
-                        o[a.field] = JSON.parse(attr);
-                    } else if (a.value === 'element') {
-                            o[a.field] = $(attr);
-                    } else {
-                        o[a.field] = attr;
-                    }
-
-                    if (k === 'fs-function') {
-                        has_custom = attr;
-                    }
-                }
-            }
+            var o = farsight._utils.parseAttrs($elem, attrs);
 
             var ae = new farsight.ActiveElement($elem, self.viewport_instance, o);
             self.elements.push(ae);
 
-            if (has_custom) {
-                var pts = has_custom.split('.');
-                pts.splice(1, 0, 'pre');
-                var pre_fn = farsight.utils.getPropertyByNamespace(pts);
+            function executePreFn(fpath, ae) {
+                var pts = fpath.split('.');
+                pts.splice(pts.length-1, 0, '_pre');
+                var pre_fn = farsight._utils.getPropertyByNamespace(pts);
                 if (pre_fn) {
                     pre_fn(ae);
+                }
+            }
+
+            if (o && o.hasOwnProperty('callback')) {
+                if (typeof o['callback'] === 'function') {
+                    executePreFn(ae.element.attr('fs-callback'), ae);
+                } else {
+                    for (var k  in o['callback']) {
+                        executePreFn(k, ae);
+                    }
                 }
             }
         }
