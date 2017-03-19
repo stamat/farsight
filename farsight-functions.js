@@ -1,8 +1,5 @@
 var farsight = farsight || {};
 
-
-
-
 farsight.parallax = function(ae) {
     ae.element.css('transform', 'translate3d(0px, '+(ae.viewport.y/6)+'px, 0px)');
 };

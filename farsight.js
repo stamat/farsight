@@ -161,7 +161,7 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
     this.animation = null;
     this.duration = null;
     this.delay = null;
-    this.infinite = false;
+    this.count = false;
 
     this.target = null; //can be used in scroll callbacks, represents a target DOM element cache
     this.data = {};
@@ -181,7 +181,7 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
         autoincrement++;
     };
 
-    this.unbind = function(name, callback) {
+    this.unbind = function(name) {
         delete this.callback[name];
     };
 
@@ -259,16 +259,16 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
             self.multiple_callbacks = false;
         }
 
-        if (this.duration) {
-            this.element.css('animation-duration', this.duration);
+        if (self.duration) {
+            self.element.css('animation-duration', self.duration);
         }
 
-        if (this.delay) {
-            this.element.css('animation-delay', this.delay);
+        if (self.delay) {
+            self.element.css('animation-delay', self.delay);
         }
 
-        if (this.infinite) {
-            this.element.css('animation-iteration-count', 'infinite');
+        if (self.count) {
+            self.element.css('animation-iteration-count', self.count);
         }
 
         self.update();
@@ -403,21 +403,15 @@ function Farsight(o) {
         'fs-callback': 'function',
         'fs-duration': 'string',
         'fs-delay': 'string',
-        'fs-infinite': 'boolean',
+        'fs-count': 'string',
         'fs-target': 'selector'
     };
 
-    //extend with options, nonrecursive extend
-    for (var k in o) {
-        if (this.hasOwnProperty(k)) {
-            this[k] = o[k];
-        }
-    }
-
     var self = this;
     var __init__ = function() {
+        farsight._utils.extend(self, o, false, false);
+
         self.viewport_instance = new farsight.Viewport({vonly: self.vonly, honly: self.honly, viewport: self.viewport, pane: {elem: self.pane}});
-        var has_custom = null; //if the element has an attribute "fn-function" used for prepare functions
 
         var $elems = $(self.selector);
         for (var i = 0; i < $elems.length; i++) {

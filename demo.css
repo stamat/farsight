@@ -157,24 +157,16 @@ h3.subtitle {
     text-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 }
 
-#pane {
+.content-wrap {
     max-width: 960px;
     padding: 0px 20px;
     margin: 0 auto;
-    height: 3000px;
     position: relative;
 }
 
-#pane section.s1 {
-    background: red;
-    top: 1000px;
-    left: 40px;
-}
-
-#pane section.s2 {
-    background: blue;
-    top: 350px;
-    left: 40px;
+#pane {
+    float: left;
+    width: 80%;
 }
 
 .percentage {
@@ -185,4 +177,32 @@ h3.subtitle {
     background: #6bbce9;
     width: 0%;
     z-index: 1;
+}
+
+.sidebar {
+    float: left;
+    width: 20%;
+    min-height: 10px;
+}
+
+.sidebar .menu {
+    position: fixed;
+}
+
+.sidebar .menu a {
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: black;
+    display: block;
+    text-transform: uppercase;
+    text-decoration: none;
+    margin: 10px 15px;
+    position: relative;
+}
+
+.sidebar .menu a span.pc {
+    background: #6bbce9;
+    height: 3px;
+    display: block;
+    width: 0px;
 }
