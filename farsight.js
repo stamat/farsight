@@ -8,7 +8,7 @@
 
 //TODO: terminate farsight function, unbind all the events
 //TODO: change the custom function system to merge CSS transform into one - make a separate custom CSS function
-//TODO: integrate floatit into this framework https://jsfiddle.net/stamat/tmjn44p9/
+
 //TODO: Percentage of dissapearance when passing through the left or top border of the viewport if enabled
 //TODO: Think about cases where both vertical and horizontal scrolling is enabled
 
@@ -105,42 +105,52 @@ farsight.Viewport = function Viewport(o) {
         }
     };
 
-    this.onscroll = function() {
-        self.calculate();
+    var scrollTimer = null;
+
+    this.onscroll = function(force) {
+        this.calculate();
 
         for (var key in this.callbacks) {
-            this.callbacks[key](this);
+            this.callbacks[key](this, force);
         }
     };
 
+    farsight._utils.extend(this, o, false, false);
+
     var __init__ = function() {
-        farsight._utils.extend(self, o, false, false);
         //if the viewport is not window
         if (!self.viewport.hasOwnProperty('innerWidth')) {
-            this.default_viewport = false;
+            self.default_viewport = false;
         }
 
         window.onresize = function() {
             self.calculate();
         };
 
+        var scrollfn = function() {
+            self.onscroll();
+
+            //scroll end fix
+            if (scrollTimer) {
+              clearTimeout(scrollTimer);
+            }
+            scrollTimer = setTimeout(function(){
+                self.onscroll(true);
+            }, 100);
+        };
 
         if (self.default_viewport) {
             self.onscroll();
-            self.viewport.onscroll = function() {
-                self.onscroll();
-            };
+            self.viewport.onscroll = scrollfn;
         } else {
             self.calculate();
-            self.viewport.scroll(function() {
-                self.onscroll();
-            });
+            self.viewport.scroll(scrollfn);
         }
     }
     __init__();
 }
 
-farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
+farsight.ActiveElement = function ActiveElement(elem, viewport, o, auto_init) {
     this.width = null;
     this.height = null;
     this.x = null;
@@ -154,6 +164,8 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
     this.callback = null;
     this.multiple_callbacks = false;
     this.once = false;
+    this.vdirection = 1;
+    this.hdirection = 1;
 
     this.oldy = 0; //start position y
     this.oldx = 0; //start position x
@@ -163,8 +175,12 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
     this.delay = null;
     this.count = false;
 
+    this.disappear = false; //https://youtu.be/nYSDC3cHoZs
+
     this.target = null; //can be used in scroll callbacks, represents a target DOM element cache
     this.data = {};
+
+    this.auto_init = auto_init === undefined;
 
     var autoincrement = 0;
 
@@ -185,7 +201,7 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
         delete this.callback[name];
     };
 
-    this.update = function() {
+    this.update = function(force) {
         if (!this.callback) {
             return;
         }
@@ -195,22 +211,31 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
         var off = {};
         if (this.viewport.default_viewport) {
             off = this.element.offset();
+            this.y = off.top;
+            this.x = off.left;
         } else {
             off = this.element.position();
+            this.y = this.viewport.y + off.top;
+            this.x = this.viewport.x + off.left;
         }
-        this.y = off.top;
-        this.x = off.left;
 
         if (!this.viewport.honly) {
             this.bottom = this.y + this.height;
             if (this.viewport.bottom < this.y) {
                 this.yp = 0;
-            } else if (this.viewport.y > this.bottom) {
-                this.yp = -1;
+                this.vdirection = 1;
+            } else if (this.disappear && this.viewport.y < this.bottom && this.viewport.y > this.y) {
+                this.yp = 1 - (this.viewport.y - this.y) / this.height;
+                this.vdirection = -1;
+            } else if (this.disappear && this.viewport.y > this.bottom) {
+                this.yp = 0;
+                this.vdirection = -1;
             } else if (this.viewport.bottom >= this.bottom) {
                 this.yp = 1;
+                this.vdirection = 1;
             } else {
                 this.yp = (this.viewport.bottom-this.y) / this.height;
+                this.vdirection = 1;
             }
         }
 
@@ -219,16 +244,23 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
 
             if (this.viewport.right < this.x) {
                 this.xp = 0;
-            } else if (this.viewport.x > this.right) {
-                this.xp = -1;
+                this.hdirection = 1;
+            } else if (this.disappear && this.viewport.x < this.right && this.viewport.x > this.x) {
+                this.xp = 1 - (this.viewport.x - this.x) / this.width;
+                this.hdirection = -1;
+            } else if (this.disappear && this.viewport.x > this.right) {
+                this.xp = 0;
+                this.hdirection = -1;
             } else if (this.viewport.right >= this.right) {
                 this.xp = 1;
+                this.hdirection = 1;
             } else {
                 this.xp = (this.viewport.right-this.x) / this.width;
+                this.hdirection = 1;
             }
         }
 
-        if (this.xp > 0 && this.xp <= 1 && this.yp > 0 && this.yp <= 1) {
+        if ((force && !this.once) || (this.xp > 0 && this.xp <= 1 && this.yp > 0 && this.yp <= 1)) {
             if (this.multiple_callbacks) {
                 for (var k in this.callback) {
                     this.callback[k](this);
@@ -243,9 +275,10 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
         }
     }
 
+    farsight._utils.extend(this, o, false, false);
+
     var self = this;
     var __init__ = function() {
-        farsight._utils.extend(self, o, false, false);
 
         if (o.hasOwnProperty('callback')) {
             self.multiple_callbacks = typeof self.callback !== 'function';
@@ -253,7 +286,10 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
 
         if (o.hasOwnProperty('animation')) {
             self.once = true;
+            self.disappear = true;
             self.callback = function() {
+                console.log(self.animation);
+                console.log(self.yp);
                 self.element.addClass('animated '+ self.animation);
             };
             self.multiple_callbacks = false;
@@ -270,11 +306,13 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o) {
         if (self.count) {
             self.element.css('animation-iteration-count', self.count);
         }
-
-        self.update();
-        var name = typeof elem === 'string' ? elem : undefined;
-        self.viewport.bind(name, function() {
+        if (self.auto_init) {
             self.update();
+        }
+
+        var name = typeof elem === 'string' ? elem : undefined;
+        self.viewport.bind(name, function(viewport, force) {
+            self.update(force);
         });
     }
     __init__();
@@ -404,12 +442,14 @@ function Farsight(o) {
         'fs-duration': 'string',
         'fs-delay': 'string',
         'fs-count': 'string',
-        'fs-target': 'selector'
+        'fs-target': 'selector',
+        'fs-disappear': 'boolean'
     };
+
+    farsight._utils.extend(this, o, false, false);
 
     var self = this;
     var __init__ = function() {
-        farsight._utils.extend(self, o, false, false);
 
         self.viewport_instance = new farsight.Viewport({vonly: self.vonly, honly: self.honly, viewport: self.viewport, pane: {elem: self.pane}});
 
@@ -418,12 +458,13 @@ function Farsight(o) {
             var $elem = $($elems[i]);
             var o = farsight._utils.parseAttrs($elem, attrs);
 
-            var ae = new farsight.ActiveElement($elem, self.viewport_instance, o);
+            var ae = new farsight.ActiveElement($elem, self.viewport_instance, o, false);
             self.elements.push(ae);
 
             function executePreFn(fpath, ae) {
                 var pts = fpath.split('.');
                 pts.splice(pts.length-1, 0, '_pre');
+
                 var pre_fn = farsight._utils.getPropertyByNamespace(pts);
                 if (pre_fn) {
                     pre_fn(ae);
@@ -439,6 +480,7 @@ function Farsight(o) {
                     }
                 }
             }
+            ae.update();
         }
     }
     __init__();

@@ -13,12 +13,17 @@ farsight.opacity = function(ae) {
 };
 
 farsight.up = function(ae) {
+
     var o = ae.yp;
     if (o < 0) {
         o = 0
     }
     var m = ae.data.position || 20;
-    ae.element.css({'transform': 'translate3d(0px, '+(m-m*o)+'px, 0px)'});
+    if (ae.vdirection > 0) {
+        ae.element.css({'transform': 'translate3d(0px, '+(m-m*o)+'px, 0px)'});
+    } else {
+        ae.element.css({'transform': 'translate3d(0px, '+(-1*(m-m*o))+'px, 0px)'});
+    }
 };
 
 farsight.fade_in = function(ae) {
@@ -26,11 +31,16 @@ farsight.fade_in = function(ae) {
     if (o < 0) {
         o = 0
     }
+
     ae.element.css('opacity', o);
 };
 
 
 farsight.percentage = function(ae) {
+    if (ae.vdirection < 0) {
+        return;
+    }
+
     var o = ae.yp;
     if (o < 0) {
         o = 0
@@ -75,19 +85,30 @@ farsight.scale = function(ae) {
 
 //follow element consists of a container and content following the viewport which is the fs-target elem
 farsight.follow = function(ae) {
-    //if (ae.viewport.y > ae.oldy) {
+    var post = ae.data.top.offset();
+    var posb = ae.data.bottom.offset();
 
-    //}
+    var b = posb.top - ae.height;
+
+    if (ae.viewport.y > post.top && ae.viewport.y < b) {
+        ae.element.css({'position': 'fixed', 'top': '0px'});
+    } else if (ae.viewport.y >= b) {
+        ae.element.css({'position': 'absolute'}).offset({top: b});
+    } else {
+        ae.element.css({'position': 'static'});
+    }
 };
+
+farsight.test = function(ae) {
+    console.log(ae.yp);
+}
 
 farsight._pre = {};
 
 farsight._pre.opacity = function(ae) {
     var attrs = {'fs-opacity': 'number'};
-    ae.data = farsight._utils.parseAttrs(ae.element, attrs);
-    if (!ae.data.opacity && ae.data.opacity === '') {
-
-    }
+    var pattrs = farsight._utils.parseAttrs(ae.element, attrs);
+    farsight._utils.extend(ae.data, pattrs);
     ae.element.css('opacity', ae.data.opacity);
 };
 
@@ -114,4 +135,10 @@ farsight._pre.scale = function(ae) {
 
 
     ae.element.css({'transform': 'scale('+o+')'});
+};
+
+farsight._pre.follow = function(ae) {
+    var attrs = {'fs-top': 'selector', 'fs-bottom': 'selector'};
+    var pattrs = farsight._utils.parseAttrs(ae.element, attrs);
+    farsight._utils.extend(ae.data, pattrs);
 };

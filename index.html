@@ -31,7 +31,7 @@
     -->
         <div class="content-wrap clearfix">
             <div class="sidebar">
-                <div class="menu fs" fs-callback="farsight.follow">
+                <div class="menu fs" fs-callback="farsight.follow" fs-top=".sidebar" fs-bottom="footer">
                     <a href="#animate-css"><span class="text">Animate CSS</span><span class="pc animate-css-percentage"></span></a>
                     <a href="#farsight-animations"><span class="text">Farsight Animations</span><span class="pc farsight-animations-percentage"></span></a>
                 </div>
@@ -153,7 +153,7 @@
                 <div id="farsight-animations" class="grid g5 clearfix fs" fs-callback="farsight.percentage" fs-target=".farsight-animations-percentage">
                     <h2>Farsight Animations</h2>
                     <section>
-                        <div class="wrap fs c1" fs-callback="farsight.fade_in">
+                        <div class="wrap fs c1" fs-callback="farsight.fade_in" fs-disappear>
                             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
                             <div class="overlay">
                                 <div class="table">
@@ -165,7 +165,7 @@
                         </div>
                     </section>
                     <section>
-                        <div class="wrap fs c2" fs-callback="farsight.fade_in, farsight.up" fs-position="20">
+                        <div class="wrap fs c2" fs-callback="farsight.fade_in, farsight.up" fs-position="20" fs-disappear>
                             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
                             <div class="overlay">
                                 <div class="table">
@@ -177,7 +177,7 @@
                         </div>
                     </section>
                     <section>
-                        <div class="wrap fs c3" fs-callback="farsight.fade_in, farsight.up" fs-position="40">
+                        <div class="wrap fs c3" fs-callback="farsight.fade_in, farsight.up" fs-position="40" fs-disappear>
                             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
                             <div class="overlay">
                                 <div class="table">
@@ -189,7 +189,7 @@
                         </div>
                     </section>
                     <section>
-                        <div class="wrap fs c4" fs-callback="farsight.fade_in, farsight.up" fs-position="60">
+                        <div class="wrap fs c4" fs-callback="farsight.fade_in, farsight.up" fs-position="60" fs-disappear>
                             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
                             <div class="overlay">
                                 <div class="table">
@@ -201,7 +201,7 @@
                         </div>
                     </section>
                     <section>
-                        <div class="wrap fs c5" fs-callback="farsight.fade_in, farsight.up" fs-position="80">
+                        <div class="wrap fs c5" fs-callback="farsight.fade_in, farsight.up" fs-position="80" fs-disappear>
                             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
                             <div class="overlay">
                                 <div class="table">
@@ -275,5 +275,6 @@
                 </div>
             </div> <!-- #pane -->
         </div><!-- .content-wrap -->
+        <footer></footer>
     </body>
 </html>

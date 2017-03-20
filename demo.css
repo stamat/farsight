@@ -167,6 +167,7 @@ h3.subtitle {
 #pane {
     float: left;
     width: 80%;
+    height: 3000px;
 }
 
 .percentage {
@@ -183,10 +184,12 @@ h3.subtitle {
     float: left;
     width: 20%;
     min-height: 10px;
+    position: relative;
 }
 
 .sidebar .menu {
     position: fixed;
+    top: 0px;
 }
 
 .sidebar .menu a {
@@ -205,4 +208,9 @@ h3.subtitle {
     height: 3px;
     display: block;
     width: 0px;
+}
+
+footer {
+    height: 500px;
+    background: #6bbce9;
 }
