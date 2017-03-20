@@ -2,7 +2,7 @@
     - FARSIGHT -
     JavaScript viewport framework - enables you cool scrolling animations and much more...
 
-    @version: v1.0.0
+    @version: v1.0.1
     @author: Nikola Stamatovic Stamat <nikola@otilito.com>
 */
 
