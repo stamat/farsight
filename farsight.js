@@ -288,8 +288,6 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o, auto_init) {
             self.once = true;
             self.disappear = true;
             self.callback = function() {
-                console.log(self.animation);
-                console.log(self.yp);
                 self.element.addClass('animated '+ self.animation);
             };
             self.multiple_callbacks = false;
