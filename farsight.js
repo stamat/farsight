@@ -12,6 +12,35 @@
 //TODO: Percentage of dissapearance when passing through the left or top border of the viewport if enabled
 //TODO: Think about cases where both vertical and horizontal scrolling is enabled
 
+// Polyfill for requestAnimationFrame
+  // via: https://gist.github.com/paulirish/1579671
+
+  (function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+      window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+      window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+        || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+      window.requestAnimationFrame = function(callback) {
+        var currTime = new Date().getTime();
+        var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+        var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+          timeToCall);
+        lastTime = currTime + timeToCall;
+        return id;
+      };
+
+    if (!window.cancelAnimationFrame)
+      window.cancelAnimationFrame = function(id) {
+        clearTimeout(id);
+      };
+  }());
+
+
 var farsight = farsight || {};
 
 farsight.Viewport = function Viewport(o) {
@@ -107,6 +136,7 @@ farsight.Viewport = function Viewport(o) {
 
     var scrollTimer = null;
 
+
     this.onscroll = function(force) {
         this.calculate();
 
@@ -124,7 +154,7 @@ farsight.Viewport = function Viewport(o) {
         }
 
         window.onresize = function() {
-            self.calculate();
+            self.onscroll();
         };
 
         var scrollfn = function() {
@@ -181,6 +211,7 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o, auto_init) {
     this.data = {};
 
     this.auto_init = auto_init === undefined;
+    this.isBusy = false;
 
     var autoincrement = 0;
 
@@ -260,18 +291,35 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o, auto_init) {
             }
         }
 
-        if ((force && !this.once) || (this.xp > 0 && this.xp <= 1 && this.yp > 0 && this.yp <= 1)) {
-            if (this.multiple_callbacks) {
-                for (var k in this.callback) {
-                    this.callback[k](this);
-                }
-            } else {
-                this.callback(this);
-            }
+        var condition = this.xp > 0 && this.xp <= 1 && this.yp > 0 && this.yp <= 1;
+        if (!this.viewport.honly) {
+            condition = this.yp > 0 && this.yp <= 1;
+        }
+        if (!this.viewport.vonly) {
+            condition = this.xp > 0 && this.xp <= 1;
+        }
 
-            if (this.once) {
-                this.callback = null;
-            }
+        if ((force && !this.once) || condition) {
+                var self = this;
+
+                if (!this.isBusy) {
+                    this.isBusy = true;
+                    window.requestAnimationFrame(function() {
+                        if (self.multiple_callbacks) {
+                            for (var k in self.callback) {
+                                self.callback[k](self);
+                            }
+                        } else {
+                            self.callback(self);
+                        }
+
+                        if (self.once) {
+                            self.callback = null;
+                        }
+                        self.isBusy = false;
+                    });
+                }
+
         }
     }
 
