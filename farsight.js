@@ -213,6 +213,8 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o, auto_init) {
     this.auto_init = auto_init === undefined;
     this.isBusy = false;
 
+    this.force = false;
+
     var autoincrement = 0;
 
     this.bind = function(name, callback) {
@@ -235,6 +237,10 @@ farsight.ActiveElement = function ActiveElement(elem, viewport, o, auto_init) {
     this.update = function(force) {
         if (!this.callback) {
             return;
+        }
+
+        if (force === undefined && this.force) {
+            force = true;
         }
 
         this.width = this.element.outerWidth();
@@ -482,6 +488,15 @@ function Farsight(o) {
         return this.viewport_instance;
     };
 
+    this.update = function() {
+        this.viewport_instance.onscroll();
+    };
+
+    this.destroy = function() {
+        this.viewport_instance.callbacks = {};
+        this.elements = [];
+    };
+
     var attrs = {
         'fs-animation': 'string',
         'fs-callback': 'function',
@@ -489,7 +504,8 @@ function Farsight(o) {
         'fs-delay': 'string',
         'fs-count': 'string',
         'fs-target': 'selector',
-        'fs-disappear': 'boolean'
+        'fs-disappear': 'boolean',
+        'fs-force': 'boolean'
     };
 
     farsight._utils.extend(this, o, false, false);
